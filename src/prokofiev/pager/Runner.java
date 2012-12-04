@@ -16,7 +16,7 @@ public class Runner {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Pager p = new Pager();
+		IPager p = new Pager();
 		String dict_name = "dict.txt"; 
 		try {
 			p.loadDict(dict_name);

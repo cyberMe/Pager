@@ -9,7 +9,7 @@ import java.util.*;
  * @author prokofiev
  * 
  */
-public class Pager {
+public class Pager implements IPager {
 
 	/**
 	 * max dictionary size = 100000 words
@@ -19,6 +19,8 @@ public class Pager {
 	 * max num rows in output file
 	 */
 	private final int N = 100000;
+	
+	private ProcessLine line_processor;
 	
 	/**
 	 * load dictionary in memory
@@ -52,6 +54,7 @@ public class Pager {
 	 */
 	public void processTextFile(String filename) throws IOException {
 		BufferedReader buf = new BufferedReader(new FileReader(filename));
+		line_processor = new RXProcessLine(dict);
 		int step = 0;
 		//TODO replace lines check on state buf check
 		boolean flag = false;
@@ -78,33 +81,15 @@ public class Pager {
 			//TODO search dots in line, for finding sent border.
 			// delay write output. waiting end of sent
 			// throw exception when sent more then N lines
-			String s = processString(curline);
+			String s = line_processor.processLine(curline);
 			wr.write(s);
 			++lines_wrote;
 		}
 		wr.write("</body>\r\n</html>");
 		wr.close();
-		return lines_wrote == N;
+		return curline != null;
 	}
 	
-	/**
-	 * processing words in string by dictionary
-	 * @param source_str
-	 * @return
-	 */
-	private String processString(String source_str){
-		//TODO work with string buffer. not with strings. it may be more fast
-		String out_str = "";
-		for (String t : source_str.split(" ")) {
-			if (dict.contains(t)) {
-				out_str += "<b><i>" + t + "</i></b> ";
-			}
-			else {
-				out_str += t + " ";
-			}
-		}
-		return out_str.trim() + "<br>\r\n";
-	}
 	
 	/**
 	 * read whole input file for find all sentences and check numrows
