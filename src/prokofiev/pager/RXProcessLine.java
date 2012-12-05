@@ -24,15 +24,15 @@ public class RXProcessLine implements ProcessLine {
 	 * 
 	 */
 	public String processLine(String source_str) {
-		Scanner scan  = new Scanner(source_str);
-		String sss = source_str;
+		Scanner scan  = new Scanner(source_str.toString());
+		String sss = source_str.toString();
 		scan.useDelimiter("[ .,]+");
 		Set<String> ignore_set = new HashSet<String>(); 
 		while(scan.hasNext()) {
 			String n = scan.next();
 			if(!ignore_set.contains(n) && dict.contains(n)) {
 				//FIXME "st sta status"  would be error FIX \< begin word, \> end word 
-				sss = sss.replaceAll("(\\<"+n+"\\>)", "<b><i>+n+</i></b>");
+				sss = sss.replaceAll("(" + n + ")", "<b><i>" + n + "</i></b>");
 				ignore_set.add(n);
 			}
 		}

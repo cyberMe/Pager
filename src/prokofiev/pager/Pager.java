@@ -18,9 +18,23 @@ public class Pager implements IPager {
 	/**
 	 * max num rows in output file
 	 */
-	private final int N = 100000;
+	private final int N = 10;
 	
+	/**
+	 * string processor
+	 */
 	private ProcessLine line_processor;
+	
+	/**
+	 * input file reader
+	 */
+	private BufferedReader buf;
+	/**
+	 * output file writer
+	 */
+	private BufferedWriter wr;
+	
+	LinkedList<String> buffer = new LinkedList<String>();
 	
 	/**
 	 * load dictionary in memory
@@ -28,10 +42,10 @@ public class Pager implements IPager {
 	 * @throws FileNotFoundException
 	 */
 	public void loadDict(String filename) throws FileNotFoundException {
-		BufferedReader buf = new BufferedReader(new FileReader(filename));
+		BufferedReader dict_buf = new BufferedReader(new FileReader(filename));
 		try {
 			String txt;
-			while ((txt = buf.readLine()) != null) {
+			while ((txt = dict_buf.readLine()) != null) {
 				dict.add(txt);
 			}
 		} catch (IOException e) {
@@ -39,7 +53,7 @@ public class Pager implements IPager {
 			e.printStackTrace();
 		}
 		try {
-			buf.close();
+			dict_buf.close();
 		} catch (IOException e) {
 			// TODO replace on error?
 			e.printStackTrace();
@@ -53,14 +67,16 @@ public class Pager implements IPager {
 	 * @throws IOException 
 	 */
 	public void processTextFile(String filename) throws IOException {
-		BufferedReader buf = new BufferedReader(new FileReader(filename));
+		buf = new BufferedReader(new FileReader(filename));
 		line_processor = new RXProcessLine(dict);
-		int step = 0;
 		//TODO replace lines check on state buf check
-		boolean flag = false;
-		do {
-			flag = processOutput(buf, filename+"."+step+".html");
-		} while(flag);
+		try {
+			processOutput(filename);
+		}
+		catch (WrongSourceFileException e) {
+			//TODO
+			e.printStackTrace();
+		}
 		buf.close();
 	}
 
@@ -69,43 +85,73 @@ public class Pager implements IPager {
 	 * @param buf
 	 * @param fn_out
 	 * @throws IOException
+	 * @throws WrongSourceFileException 
 	 */
-	private boolean processOutput(BufferedReader buf, String fn_out) throws IOException {
-		BufferedWriter wr = new BufferedWriter(new FileWriter(fn_out));
+	private boolean processOutput(String fn_out) throws IOException, WrongSourceFileException {
+		int lines_wrote = 0;
+		int page = 0;
+		openOutput(fn_out + page++ + ".html");
+		String curline;
+		while ((curline = buf.readLine()) != null) {
+			String s = line_processor.processLine(curline);
+			int dot_pos = s.lastIndexOf('.');
+			if(dot_pos >= 0) {
+				buffer.add(s.substring(0, dot_pos +1));
+				if((lines_wrote + buffer.size()) >= N) {
+					if(buffer.size() >= N)
+						throw new WrongSourceFileException();
+					closeOutput();
+					openOutput(fn_out + page++ + ".html");
+					lines_wrote = 0;
+				}
+				lines_wrote += buffer.size();
+				flushBuffer();
+				buffer.add(s.substring(dot_pos + 1));
+			}
+			else {
+				buffer.add(s);
+			}
+		}
+		if(buffer.size() >= N)
+			throw new WrongSourceFileException();
+		if((lines_wrote + buffer.size()) >= N) {
+			closeOutput();
+			openOutput(fn_out + page++ + "html");
+			lines_wrote = 0;
+		}
+		flushBuffer();
+		closeOutput();
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	private void flushBuffer() throws IOException {
+		while (buffer.size() > 0) {
+			wr.write(buffer.removeFirst());
+		}
+	}
+	
+	/**
+	 * 
+	 * @param fn_out
+	 * @throws IOException
+	 */
+	private void openOutput(String fn_out) throws IOException {
+		wr = new BufferedWriter(new FileWriter(fn_out));
 		wr.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 FINAL//EN\">\r\n");
 		wr.write("<html>\r\n");
 		wr.write("<head></head>\r\n<body>\r\n");
-		int lines_wrote = 0;
-		String curline;
-		while ((curline = buf.readLine()) != null && lines_wrote <= N) {
-			//TODO search dots in line, for finding sent border.
-			// delay write output. waiting end of sent
-			// throw exception when sent more then N lines
-			String s = line_processor.processLine(curline);
-			wr.write(s);
-			++lines_wrote;
-		}
-		wr.write("</body>\r\n</html>");
-		wr.close();
-		return curline != null;
 	}
 	
-	
 	/**
-	 * read whole input file for find all sentences and check numrows
-	 * @param filename name of input file
-	 * @throws WrongSourceFileException
+	 * 
+	 * @throws IOException
 	 */
-	/*private void preprocessInputFile(String filename) throws WrongSourceFileException {
-		BufferedReader buf = new BufferedReader(new FileReader(filename));
-		
-		for(int i = 0; ; ++i){
-			String curline = buf.readLine();
-			if(curline == null)
-				break;
-			
-		}
-		buf.close();
-	}*/
-	
+	private void closeOutput() throws IOException {
+		wr.write("</body>\r\n</html>");
+		wr.close();
+	}
 }
