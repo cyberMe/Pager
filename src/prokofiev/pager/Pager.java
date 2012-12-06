@@ -18,7 +18,7 @@ public class Pager implements IPager {
 	/**
 	 * max num rows in output file
 	 */
-	private final int N = 10;
+	private final int N = 100000;
 	
 	/**
 	 * string processor
@@ -39,44 +39,34 @@ public class Pager implements IPager {
 	/**
 	 * load dictionary in memory
 	 * @param filename dictionary file
-	 * @throws FileNotFoundException
+	 * @throws FileNotFoundException on missing file
+	 * @throws BadDictException on bad token in dict file
 	 */
-	public void loadDict(String filename) throws FileNotFoundException {
+	public void loadDict(String filename) throws FileNotFoundException, BadDictException {
 		BufferedReader dict_buf = new BufferedReader(new FileReader(filename));
 		try {
 			String txt;
-			while ((txt = dict_buf.readLine()) != null) {
+			while ((txt = dict_buf.readLine().trim()) != null) {
+				if(txt.isEmpty() || (txt.indexOf(' ') >= 0))
+					throw new BadDictException(dict.size(), txt);
 				dict.add(txt);
 			}
-		} catch (IOException e) {
-			//TODO something wrong with filesystem?
-			e.printStackTrace();
-		}
-		try {
 			dict_buf.close();
 		} catch (IOException e) {
-			// TODO replace on error?
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
 	 * Processing input file by dictionary
 	 * @param filename name of input file
 	 * @throws IOException 
+	 * @throws WrongSourceFileException 
 	 */
-	public void processTextFile(String filename) throws IOException {
+	public void processTextFile(String filename) throws IOException, WrongSourceFileException {
 		buf = new BufferedReader(new FileReader(filename));
 		line_processor = new RXProcessLine(dict);
-		//TODO replace lines check on state buf check
-		try {
-			processOutput(filename);
-		}
-		catch (WrongSourceFileException e) {
-			//TODO
-			e.printStackTrace();
-		}
+		processOutput(filename);
 		buf.close();
 	}
 
@@ -125,7 +115,7 @@ public class Pager implements IPager {
 	}
 	
 	/**
-	 * 
+	 * flush buffer into writer
 	 * @throws IOException
 	 */
 	private void flushBuffer() throws IOException {
@@ -135,7 +125,7 @@ public class Pager implements IPager {
 	}
 	
 	/**
-	 * 
+	 * open new file, and write standart html header
 	 * @param fn_out
 	 * @throws IOException
 	 */
@@ -147,7 +137,7 @@ public class Pager implements IPager {
 	}
 	
 	/**
-	 * 
+	 * write footer and close file
 	 * @throws IOException
 	 */
 	private void closeOutput() throws IOException {

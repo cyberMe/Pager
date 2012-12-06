@@ -4,6 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public interface IPager {
-	public void loadDict(String filename) throws FileNotFoundException;
-	public void processTextFile(String filename) throws IOException;
+	public void loadDict(String filename) throws FileNotFoundException, BadDictException;
+	public void processTextFile(String filename) throws IOException, WrongSourceFileException;
 }
