@@ -46,7 +46,8 @@ public class Pager implements IPager {
 		BufferedReader dict_buf = new BufferedReader(new FileReader(filename));
 		try {
 			String txt;
-			while ((txt = dict_buf.readLine().trim()) != null) {
+			while ((txt = dict_buf.readLine()) != null) {
+				txt = txt.trim();
 				if(txt.isEmpty() || (txt.indexOf(' ') >= 0))
 					throw new BadDictException(dict.size(), txt);
 				dict.add(txt);

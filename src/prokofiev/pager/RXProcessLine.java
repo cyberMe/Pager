@@ -1,43 +1,38 @@
 package prokofiev.pager;
 
-import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
 /**
- * 
- * @author cool
- *
+ * @author prokofiev
+ * Process string, using regular expression
  */
 public class RXProcessLine implements ProcessLine {
 	
 	private Set<String> dict;
 	/**
-	 * 
-	 * @param d
+	 * @param d - dictionary
 	 */
 	public RXProcessLine(Set<String> d){
 		dict = d;
 	}
 	
 	/**
-	 * 
+	 * process source string
 	 */
 	public String processLine(String source_str) {
+		String result = source_str.toString();
 		Scanner scan  = new Scanner(source_str.toString());
-		String sss = source_str.toString();
-		scan.useDelimiter("[ .,]+");
-		Set<String> ignore_set = new HashSet<String>(); 
+		scan.useDelimiter("[ .,]+"); 
 		while(scan.hasNext()) {
-			String n = scan.next();
-			if(!ignore_set.contains(n) && dict.contains(n)) {
-				//FIXME "st sta status"  would be error FIX \< begin word, \> end word 
-				sss = sss.replaceAll("(" + n + ")", "<b><i>" + n + "</i></b>");
-				ignore_set.add(n);
+			String tag = scan.next();
+			if(dict.contains(tag)) { 
+				result = result.replaceAll("(\\b" + tag + "\\b)", 
+						"<b><i>" + tag + "</i></b>");
 			}
 		}
 		scan.close();
-		sss += "<br>\r\n";
-		return sss;
+		result += "<br>\r\n";
+		return result;
 	}		
 }
