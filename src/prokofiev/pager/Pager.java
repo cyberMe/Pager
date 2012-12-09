@@ -18,8 +18,9 @@ public class Pager implements IPager {
 	/**
 	 * max num rows in output file
 	 */
-	private final int N = 100000;
+	private int maxOutLines;
 	
+
 	/**
 	 * string processor
 	 */
@@ -34,7 +35,20 @@ public class Pager implements IPager {
 	 */
 	private BufferedWriter wr;
 	
-	LinkedList<String> buffer = new LinkedList<String>();
+	private LinkedList<String> buffer = new LinkedList<String>();
+	
+	public Pager(int maxLines) {
+		setMaxOutLines(maxLines);
+	}
+
+	private void setMaxOutLines(int maxLines) {
+		if (maxLines < 10)
+			maxOutLines = 10;
+		else if (maxLines > 100000)
+			maxOutLines = 100000;
+		else
+			maxOutLines = maxLines;
+	}
 	
 	/**
 	 * load dictionary in memory
@@ -88,8 +102,8 @@ public class Pager implements IPager {
 			int dot_pos = s.lastIndexOf('.');
 			if(dot_pos >= 0) {
 				buffer.add(s.substring(0, dot_pos +1));
-				if((lines_wrote + buffer.size()) >= N) {
-					if(buffer.size() >= N)
+				if((lines_wrote + buffer.size()) >= maxOutLines) {
+					if(buffer.size() >= maxOutLines)
 						throw new WrongSourceFileException();
 					closeOutput();
 					openOutput(fn_out + page++ + ".html");
@@ -103,9 +117,9 @@ public class Pager implements IPager {
 				buffer.add(s);
 			}
 		}
-		if(buffer.size() >= N)
+		if(buffer.size() >= maxOutLines)
 			throw new WrongSourceFileException();
-		if((lines_wrote + buffer.size()) >= N) {
+		if((lines_wrote + buffer.size()) >= maxOutLines) {
 			closeOutput();
 			openOutput(fn_out + page++ + "html");
 			lines_wrote = 0;
