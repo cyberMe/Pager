@@ -4,6 +4,7 @@
 package prokofiev.pager;
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
 
 /**
  * @author prokofiev
@@ -96,12 +97,14 @@ public class Pager implements IPager {
 		int lines_wrote = 0;
 		int page = 0;
 		openOutput(fn_out + page++ + ".html");
+		Pattern pattern = Pattern.compile("[!?.][^!?.]*$");
 		String curline;
 		while ((curline = buf.readLine()) != null) {
 			String s = line_processor.processLine(curline);
-			int dot_pos = s.lastIndexOf('.');
-			if(dot_pos >= 0) {
-				buffer.add(s.substring(0, dot_pos +1));
+			Matcher match = pattern.matcher(s);
+			if(match.find()) {
+				int dot_pos = match.start();
+				buffer.add(s.substring(0, dot_pos +1));   //left part of string
 				if((lines_wrote + buffer.size()) >= maxOutLines) {
 					if(buffer.size() >= maxOutLines)
 						throw new WrongSourceFileException();
@@ -111,7 +114,7 @@ public class Pager implements IPager {
 				}
 				lines_wrote += buffer.size();
 				flushBuffer();
-				buffer.add(s.substring(dot_pos + 1));
+				buffer.add(s.substring(dot_pos + 1));     //right part of string
 			}
 			else {
 				buffer.add(s);
