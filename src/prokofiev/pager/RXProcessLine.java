@@ -1,15 +1,18 @@
+/*
+ * author prokofiev
+ */
 package prokofiev.pager;
 
 import java.util.Scanner;
 import java.util.Set;
 
 /**
- * @author prokofiev
  * Process string, using regular expression
  */
 public class RXProcessLine implements ProcessLine {
 	
 	private Set<String> dict;
+	
 	/**
 	 * @param d - dictionary
 	 */
@@ -34,5 +37,5 @@ public class RXProcessLine implements ProcessLine {
 		scan.close();
 		result += "<br>\r\n";
 		return result;
-	}		
+	}
 }

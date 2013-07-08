@@ -1,10 +1,9 @@
-/**
- * 
+/*
+ * author prokofiev
  */
 package prokofiev.pager;
 
 /**
- * @author prokofiev
  * interface for text processor
  */
 public interface ProcessLine {

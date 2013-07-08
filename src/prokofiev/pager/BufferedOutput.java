@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * author prokofiev
  */
 package prokofiev.pager;
 
@@ -8,10 +8,10 @@ import java.util.*;
 import java.util.regex.*;
 
 /**
- * @author prokofiev
  * text writer with sentences splitter
  */
 public class BufferedOutput implements Output {
+
 	private LinkedList<String> buffer = new LinkedList<String>();
 	private BufferedWriter wr;
 	private String base_name;
@@ -47,13 +47,13 @@ public class BufferedOutput implements Output {
 	@Override
 	public void appendLine(String line) throws IOException, WrongSourceFileException {
 		Matcher match = pattern.matcher(line);
-		if(match.find()) {
+		
+		if (match.find()) {
 			int dot_pos = match.end();
 			buffer.add(line.substring(0, dot_pos));   //left part of string
 			flushBuffer();
 			buffer.add(line.substring(dot_pos));     //right part of string
-		}
-		else {
+		} else {
 			buffer.add(line);
 		}
 	}
@@ -75,8 +75,8 @@ public class BufferedOutput implements Output {
 	 * @throws WrongSourceFileException 
 	 */
 	private void flushBuffer() throws IOException, WrongSourceFileException {
-		if((lines_wrote + buffer.size()) >= maxLines) {
-			if(buffer.size() >= maxLines)
+		if ((lines_wrote + buffer.size()) >= maxLines) {
+			if (buffer.size() >= maxLines)
 				throw new WrongSourceFileException();
 			closeOutput();
 			openOutput();
@@ -93,6 +93,7 @@ public class BufferedOutput implements Output {
 	 */
 	private void openOutput() throws IOException {
 		wr = new BufferedWriter(new FileWriter(base_name + page++ + ".html"));
+		
 		wr.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 FINAL//EN\">\r\n");
 		wr.write("<html>\r\n");
 		wr.write("<head></head>\r\n<body>\r\n");

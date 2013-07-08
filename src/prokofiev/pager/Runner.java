@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * author prokofiev
  */
 package prokofiev.pager;
 
@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
- * @author prokofiev
  * Run pager with set param
  */
 public class Runner {

@@ -1,34 +1,26 @@
-/**
- * 
+/*
+ * author prokofiev 
  */
 package prokofiev.pager;
+
 import java.io.*;
 import java.util.*;
 
 /**
- * @author prokofiev
- * 
+ * implementation interface
  */
 public class Pager implements IPager {
 
-	/**
-	 * max dictionary size = 100000 words
-	 */
+	/** max dictionary size = 100000 words */
 	private HashSet<String> dict = new HashSet<String>(100000);
-	/**
-	 * max num rows in output file
-	 */
+	
+	/** max num rows in output file */
 	private int maxOutLines;
 	
-
-	/**
-	 * string processor
-	 */
+	/** string processor */
 	private ProcessLine line_processor;
 	
-	/**
-	 * input file reader
-	 */
+	/** input file reader */
 	private BufferedReader buf;
 	
 	
@@ -51,20 +43,29 @@ public class Pager implements IPager {
 	 * @throws FileNotFoundException on missing file
 	 * @throws BadDictException on bad token in dict file
 	 */
-	public void loadDict(String filename) throws FileNotFoundException, BadDictException {
-		BufferedReader dict_buf = new BufferedReader(new FileReader(filename));
+	public void loadDict(String filename) 
+			throws FileNotFoundException, BadDictException {
+		
+		BufferedReader dict_buf = null;
 		try {
+			dict_buf = new BufferedReader(new FileReader(filename));
 			String txt;
 			while ((txt = dict_buf.readLine()) != null) {
 				txt = txt.trim();
-				if(txt.isEmpty() || (txt.indexOf(' ') >= 0))
+				if (txt.isEmpty() || (txt.indexOf(' ') >= 0))
 					throw new BadDictException(dict.size(), txt);
 				dict.add(txt);
 			}
-			dict_buf.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				dict_buf.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}		
 		}
+		
 	}
 
 	/**
@@ -73,7 +74,8 @@ public class Pager implements IPager {
 	 * @throws IOException 
 	 * @throws WrongSourceFileException 
 	 */
-	public void processTextFile(String filename) throws IOException, WrongSourceFileException {
+	public void processTextFile(String filename) 
+			throws IOException, WrongSourceFileException {
 		buf = new BufferedReader(new FileReader(filename));
 		line_processor = new RXProcessLine(dict);
 		processOutput(filename);
@@ -87,7 +89,8 @@ public class Pager implements IPager {
 	 * @throws IOException
 	 * @throws WrongSourceFileException 
 	 */
-	private boolean processOutput(String fn_out) throws IOException, WrongSourceFileException {
+	private boolean processOutput(String fn_out) 
+			throws IOException, WrongSourceFileException {
 		Output output = new BufferedOutput(fn_out, maxOutLines);
 		output.open();
 		String curline;
