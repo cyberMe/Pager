@@ -1,7 +1,7 @@
 /**
  * 
  */
-package prokofiev.pager;
+package prokofiev.pager.exception;
 
 /**
  * @author prokofiev

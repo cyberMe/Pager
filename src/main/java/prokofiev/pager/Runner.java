@@ -3,6 +3,8 @@
  */
 package prokofiev.pager;
 
+import prokofiev.pager.exception.WrongSourceFileException;
+import prokofiev.pager.exception.BadDictionaryException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -11,14 +13,14 @@ import java.io.IOException;
  */
 public class Runner {
 	
-	private String dict_name = "dict.txt"; 
-	private String source_name = "src.txt";
+	private String dictName = "dict.txt"; 
+	private String sourceName = "src.txt";
 	private int maxOutLines = 100000;
 
 	public static void main(String[] args) {
 		Runner r = new Runner();
 		r.initParam(args);
-		r.Run();
+		r.run();
 	}
 	
 	/**
@@ -27,8 +29,8 @@ public class Runner {
 	 */
 	private void initParam(String[] args) {
 		if(args.length > 1) {
-			dict_name = args[0];
-			source_name = args[1];
+			dictName = args[0];
+			sourceName = args[1];
 		}
 		if(args.length > 2) {
 			maxOutLines = Integer.parseInt(args[2]);
@@ -38,23 +40,23 @@ public class Runner {
 	/**
 	 * Starts processing
 	 */
-	private void Run() {
-		IPager p = new Pager(maxOutLines);
+	private void run() {
+		Pager p = new FilePager(maxOutLines);
 		try {
-			p.loadDict(dict_name);
+			p.loadDictionary(dictName);
 		} catch (FileNotFoundException e) {
-			System.out.println("bad file name: " + dict_name);
-		} catch (BadDictException e) {
-			System.out.println("bad dictionary file: " + dict_name);
-			System.out.println("at line:" + e.error_line + " : " + e.error_line);
+			System.out.println("bad file name: " + dictName);
+		} catch (BadDictionaryException e) {
+			System.out.println("bad dictionary file: " + dictName);
+			System.out.println(e);
 		}
 		try {
-			p.processTextFile(source_name);
+			p.processTextFile(sourceName);
 		} catch (IOException e) {
 			System.out.println("Error when reading source file.");
 			e.printStackTrace();
 		} catch (WrongSourceFileException e) {
-			System.out.println("bad source file: " + source_name);
+			System.out.println("bad source file: " + sourceName);
 			e.printStackTrace();
 		}
 	}

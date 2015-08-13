@@ -3,6 +3,7 @@
  */
 package prokofiev.pager;
 
+import prokofiev.pager.exception.WrongSourceFileException;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
@@ -12,22 +13,24 @@ import java.util.regex.*;
  */
 public class BufferedOutput implements Output {
 
-	private LinkedList<String> buffer = new LinkedList<String>();
-	private BufferedWriter wr;
-	private String base_name;
-	private int lines_wrote = 0;
-	private int page = 0;
-	private int maxLines;
-	Pattern pattern = Pattern.compile("[!?.][^!?.]*$");
+	private final LinkedList<String> buffer = new LinkedList<>();
+	private final Pattern pattern = Pattern.compile("[!?.][^!?.]*$");
+	private final String baseName;
+	private int linesWrote;
+	private final int maxLines;
+	private BufferedWriter writer;
+	private int page;
 	
 	/**
 	 * create new buffered output
-	 * @param file_base_name base part for output filename
-	 * @param max_lines max lines per file
+	 * @param fileBaseName base part for output filename
+	 * @param maxLines max lines per file
 	 */
-	public BufferedOutput(String file_base_name, int max_lines) {
-		base_name = file_base_name;
-		maxLines = max_lines;
+	public BufferedOutput(String fileBaseName, int maxLines) {
+        this.page = 0;
+        this.linesWrote = 0;
+		this.baseName = fileBaseName;
+		this.maxLines = maxLines;
 	}
 	
 	/**
@@ -41,6 +44,7 @@ public class BufferedOutput implements Output {
 
 	/**
 	 * put line to output
+     * @param line
 	 * @throws IOException
 	 * @throws WrongSourceFileException
 	 */
@@ -49,10 +53,10 @@ public class BufferedOutput implements Output {
 		Matcher match = pattern.matcher(line);
 		
 		if (match.find()) {
-			int dot_pos = match.end();
-			buffer.add(line.substring(0, dot_pos));   //left part of string
+			int dotPos = match.end();
+			buffer.add(line.substring(0, dotPos));   //left part of string
 			flushBuffer();
-			buffer.add(line.substring(dot_pos));     //right part of string
+			buffer.add(line.substring(dotPos));     //right part of string
 		} else {
 			buffer.add(line);
 		}
@@ -75,15 +79,16 @@ public class BufferedOutput implements Output {
 	 * @throws WrongSourceFileException 
 	 */
 	private void flushBuffer() throws IOException, WrongSourceFileException {
-		if ((lines_wrote + buffer.size()) >= maxLines) {
-			if (buffer.size() >= maxLines)
-				throw new WrongSourceFileException();
+		if ((linesWrote + buffer.size()) >= maxLines) {
+			if (buffer.size() >= maxLines) {
+                throw new WrongSourceFileException();
+            }
 			closeOutput();
 			openOutput();
 		}
-		lines_wrote += buffer.size();
+		linesWrote += buffer.size();
 		while (buffer.size() > 0) {
-			wr.write(buffer.removeFirst());
+			writer.write(buffer.removeFirst());
 		}
 	}
 	
@@ -92,12 +97,12 @@ public class BufferedOutput implements Output {
 	 * @throws IOException
 	 */
 	private void openOutput() throws IOException {
-		wr = new BufferedWriter(new FileWriter(base_name + page++ + ".html"));
+		writer = new BufferedWriter(new FileWriter(baseName + page++ + ".html"));
 		
-		wr.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 FINAL//EN\">\r\n");
-		wr.write("<html>\r\n");
-		wr.write("<head></head>\r\n<body>\r\n");
-		lines_wrote = 0;
+		writer.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 FINAL//EN\">\r\n");
+		writer.write("<html>\r\n");
+		writer.write("<head></head>\r\n<body>\r\n");
+		linesWrote = 0;
 	}
 	
 	/**
@@ -105,8 +110,8 @@ public class BufferedOutput implements Output {
 	 * @throws IOException
 	 */
 	private void closeOutput() throws IOException {
-		wr.write("</body>\r\n</html>");
-		wr.close();
+		writer.write("</body>\r\n</html>");
+		writer.close();
 	}
 
 }

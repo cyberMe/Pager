@@ -6,11 +6,11 @@ package prokofiev.pager;
 /**
  * interface for text processor
  */
-public interface ProcessLine {
+public interface LineProcessor {
 	/**
 	 * Process text
-	 * @param source_str source text
+	 * @param sourceStr source text
 	 * @return processing text
 	 */
-	public String processLine(String source_str);
+	public String processLine(String sourceStr);
 }

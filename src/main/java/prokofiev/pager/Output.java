@@ -3,6 +3,7 @@
  */
 package prokofiev.pager;
 
+import prokofiev.pager.exception.WrongSourceFileException;
 import java.io.IOException;
 
 /**
