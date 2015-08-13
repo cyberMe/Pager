@@ -2,3 +2,4 @@ bin/*
 .gradle/*
 
 /.nb-gradle/
+/build/
