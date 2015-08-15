@@ -7,6 +7,8 @@ import prokofiev.pager.exception.WrongSourceFileException;
 import prokofiev.pager.exception.BadDictionaryException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Run pager with set param
@@ -16,6 +18,8 @@ public class Runner {
 	private String dictName = "dict.txt"; 
 	private String sourceName = "src.txt";
 	private int maxOutLines = 100000;
+
+	private final Logger log = LoggerFactory.getLogger(Runner.class);
 
 	public static void main(String[] args) {
 		Runner r = new Runner();
@@ -45,19 +49,18 @@ public class Runner {
 		try {
 			p.loadDictionary(dictName);
 		} catch (FileNotFoundException e) {
-			System.out.println("bad file name: " + dictName);
+			log.error("bad file name: {}", dictName);
 		} catch (BadDictionaryException e) {
-			System.out.println("bad dictionary file: " + dictName);
-			System.out.println(e);
+			log.error("bad dictionary file: {}", dictName);
+			log.error("", e);
 		}
 		try {
 			p.processTextFile(sourceName);
 		} catch (IOException e) {
-			System.out.println("Error when reading source file.");
-			e.printStackTrace();
+			log.error("Error when reading source file.", e);
 		} catch (WrongSourceFileException e) {
-			System.out.println("bad source file: " + sourceName);
-			e.printStackTrace();
+			log.error("bad source file: {}", sourceName);
+			log.error("", e);
 		}
 	}
 }

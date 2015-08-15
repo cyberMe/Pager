@@ -7,6 +7,8 @@ import prokofiev.pager.exception.WrongSourceFileException;
 import prokofiev.pager.exception.BadDictionaryException;
 import java.io.*;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * implementation interface
@@ -24,8 +26,9 @@ public class FilePager implements Pager {
 	
 	/** input file reader */
 	private BufferedReader reader;
-	
-	
+
+	private final Logger log = LoggerFactory.getLogger(FilePager.class);
+
 	public FilePager(int maxLines) {
 		setMaxOutLines(maxLines);
 	}
@@ -60,7 +63,7 @@ public class FilePager implements Pager {
 				dictionary.add(line);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("", e);
 		} 
 	}
 
