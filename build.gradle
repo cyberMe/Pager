@@ -20,3 +20,9 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.12',
             'org.slf4j:slf4j-simple:1.7.12'
 }
+
+task runExample (type: JavaExec) {
+	main = 'prokofiev.pager.Runner'
+	classpath = sourceSets.main.runtimeClasspath
+	workingDir = "bin/ex1"
+}
