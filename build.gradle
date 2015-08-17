@@ -26,3 +26,8 @@ task runExample (type: JavaExec) {
 	classpath = sourceSets.main.runtimeClasspath
 	workingDir = "bin/ex1"
 }
+
+task prepareDoc (type: Javadoc) {
+	source = sourceSets.main.allJava
+	destinationDir = file("doc/javadoc")
+}
